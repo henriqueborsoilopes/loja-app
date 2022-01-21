@@ -9,10 +9,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.curso.lojaapp.domain.Categoria;
 import com.curso.lojaapp.domain.Cidade;
+import com.curso.lojaapp.domain.Cliente;
+import com.curso.lojaapp.domain.Endereco;
 import com.curso.lojaapp.domain.Estado;
 import com.curso.lojaapp.domain.Produto;
+import com.curso.lojaapp.domain.enums.TipoCliente;
 import com.curso.lojaapp.repositories.CategoriaRepository;
 import com.curso.lojaapp.repositories.CidadeRepository;
+import com.curso.lojaapp.repositories.ClienteRepository;
+import com.curso.lojaapp.repositories.EnderecoRepository;
 import com.curso.lojaapp.repositories.EstadoRepository;
 import com.curso.lojaapp.repositories.ProdutoRepository;
 
@@ -30,6 +35,13 @@ public class LojaappApplication  implements CommandLineRunner{
 	
 	@Autowired
 	private CidadeRepository cidadeRepository;
+	
+	@Autowired
+	private ClienteRepository clienteRepository;
+
+	@Autowired
+	private EnderecoRepository enderecoRepository;
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(LojaappApplication.class, args);
@@ -66,5 +78,16 @@ public class LojaappApplication  implements CommandLineRunner{
 		
 		estadoRepository.saveAll(Arrays.asList(est1, est2));
 		cidadeRepository.saveAll(Arrays.asList(c1, c2, c3));
+		
+		Cliente cli1 = new Cliente(null, "Maria Silva", "marialsilva@gmail.com", "025.184.586-54", TipoCliente.PESSOAFISICA);
+		cli1.getTelefones().addAll(Arrays.asList("(45) 9 9916-1342", "(48) 9 8456-5482"));
+		
+		Endereco e1 = new Endereco(null, "Rua Flores", "300", "Apto 203", "Jardim", "38220834", cli1, c1);
+		Endereco e2 = new Endereco(null, "Avinidas Matos", "105", "Sala 800", "Centro", "38777012", cli1, c2);
+		
+		cli1.getEnderecos().addAll(Arrays.asList(e1, e2));
+		
+		clienteRepository.saveAll(Arrays.asList(cli1));
+		enderecoRepository.saveAll(Arrays.asList(e1, e2));
 	}
 }
