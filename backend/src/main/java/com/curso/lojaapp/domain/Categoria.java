@@ -1,4 +1,4 @@
-package com.curso.lojaapp.dominio;
+package com.curso.lojaapp.domain;
 
 import java.io.Serializable;
 
