@@ -2,44 +2,44 @@ package com.curso.lojaapp.services.validation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.servlet.HandlerMapping;
 
 import com.curso.lojaapp.domain.Cliente;
-import com.curso.lojaapp.dto.ClienteDTO;
+import com.curso.lojaapp.domain.enums.TipoCliente;
+import com.curso.lojaapp.dto.ClienteNewDTO;
 import com.curso.lojaapp.repositories.ClienteRepository;
 import com.curso.lojaapp.resources.exception.FieldMessage;
+import com.curso.lojaapp.services.validation.utils.BR;
 
-public class ClienteInsertValidator implements ConstraintValidator<ClienteUpdate, ClienteDTO>{
-	
-	@Autowired
-	private HttpServletRequest request;
+public class ClienteUpdateValidator implements ConstraintValidator<ClienteInsert, ClienteNewDTO>{
 	
 	@Autowired
 	private ClienteRepository clienteRepository;
 	
 	@Override
-	public void initialize(ClienteUpdate ann) {
+	public void initialize(ClienteInsert ann) {
 	}
 	
 	@Override
-	public boolean isValid(ClienteDTO objDTO, ConstraintValidatorContext context) {
-		
-		@SuppressWarnings("unchecked")
-		Map<String, String> map = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-		Integer uriId = Integer.parseInt(map.get("id"));
+	public boolean isValid(ClienteNewDTO objDTO, ConstraintValidatorContext context) {
 		
 		List<FieldMessage> list = new ArrayList<>();
 		
+		if(objDTO.getTipo().equals(TipoCliente.PESSOAFISICA.getCod()) && !BR.isValidCPF(objDTO.getCpfOuCnpj())) {
+			list.add(new FieldMessage("CpfOuCnpj", "CPF inválido"));
+		}
+		
+		if(objDTO.getTipo().equals(TipoCliente.PESSOAJURIDICA.getCod()) && !BR.isValidCNPJ(objDTO.getCpfOuCnpj())) {
+			list.add(new FieldMessage("CpfOuCnpj", "CNPJ inválido"));
+		}
+		
 		Cliente aux = clienteRepository.findByEmail(objDTO.getEmail());
 		
-		if( aux != null && !aux.getId().equals(uriId)) {
+		if( aux != null) {
 			list.add(new FieldMessage("Email", "Email já existente"));
 		}
 		
