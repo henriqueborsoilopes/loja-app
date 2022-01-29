@@ -20,6 +20,7 @@ import com.curso.lojaapp.domain.PagamentoComCartao;
 import com.curso.lojaapp.domain.Pedido;
 import com.curso.lojaapp.domain.Produto;
 import com.curso.lojaapp.domain.enums.EstadoPagamento;
+import com.curso.lojaapp.domain.enums.Perfil;
 import com.curso.lojaapp.domain.enums.TipoCliente;
 import com.curso.lojaapp.repositories.CategoriaRepository;
 import com.curso.lojaapp.repositories.CidadeRepository;
@@ -127,13 +128,19 @@ public class DBService {
 		Cliente cli1 = new Cliente(null, "Vitor", "vitorpierrii@gmail.com", "025.184.586-54", TipoCliente.PESSOAFISICA, bCryptPasswordEncoder.encode("12345678"));
 		cli1.getTelefones().addAll(Arrays.asList("(45) 9 9916-1342", "(48) 9 8456-5482"));
 		
+		Cliente cli2 = new Cliente(null, "Henrique Borsoi Lopes", "henriqueborsoilopes@gmail.com", "025.184.586-54", TipoCliente.PESSOAFISICA, bCryptPasswordEncoder.encode("12345678"));
+		cli2.getTelefones().addAll(Arrays.asList("(45) 9 9916-1342", "(48) 9 8456-5482"));
+		cli2.addPerfil(Perfil.ADMIN);
+		
 		Endereco e1 = new Endereco(null, "Rua Flores", "300", "Apto 203", "Jardim", "38220834", cli1, c1);
 		Endereco e2 = new Endereco(null, "Avinidas Matos", "105", "Sala 800", "Centro", "38777012", cli1, c2);
+		Endereco e3 = new Endereco(null, "Rua Dom Pedro II", "1005", "Casa", "Centro", "38524012", cli2, c1);
 		
 		cli1.getEnderecos().addAll(Arrays.asList(e1, e2));
+		cli2.getEnderecos().addAll(Arrays.asList(e3));
 		
-		clienteRepository.saveAll(Arrays.asList(cli1));
-		enderecoRepository.saveAll(Arrays.asList(e1, e2));
+		clienteRepository.saveAll(Arrays.asList(cli1, cli2));
+		enderecoRepository.saveAll(Arrays.asList(e1, e2, e3));
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 		
