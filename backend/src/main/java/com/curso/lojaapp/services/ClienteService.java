@@ -34,7 +34,7 @@ import com.curso.lojaapp.services.exception.ObjectNotFoundException;
 public class ClienteService {
 	
 	@Autowired
-	private ClienteRepository clienteRespository;
+	private ClienteRepository clienteRepository;
 	
 	@Autowired
 	private EnderecoRepository enderecoRespository;
@@ -61,14 +61,14 @@ public class ClienteService {
 			throw new AuthorizationException("Acesso negado");
 		}
 		
-		Optional<Cliente> obj = clienteRespository.findById(id);
+		Optional<Cliente> obj = clienteRepository.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFoundException( "Obejto não encontrado! Id: " + id + ", Tipo: " + Cliente.class.getName()));
 	}
 	
 	@Transactional
 	public Cliente insert(Cliente obj) {
 		obj.setId(null);
-		obj = clienteRespository.save(obj);
+		obj = clienteRepository.save(obj);
 		enderecoRespository.saveAll(obj.getEnderecos());
 		return obj;
 	}
@@ -76,13 +76,13 @@ public class ClienteService {
 	public Cliente update(Cliente obj) {
 		Cliente newObj = findById(obj.getId());
 		updateData(newObj, obj);
-		return clienteRespository.save(newObj);
+		return clienteRepository.save(newObj);
 	}
 	
 	public void delete(Integer id) {
 		findById(id);
 		try {
-			clienteRespository.deleteById(id);
+			clienteRepository.deleteById(id);
 		}
 		catch (DataIntegrityViolationException e) {
 			throw new DataIntegrityException("Não é possível excluir porque há pedidos relacionados");
@@ -90,12 +90,12 @@ public class ClienteService {
 	}
 	
 	public List<Cliente> findAll(){
-		return clienteRespository.findAll();
+		return clienteRepository.findAll();
 	}
 	
 	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction){
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
-		return clienteRespository.findAll(pageRequest);
+		return clienteRepository.findAll(pageRequest);
 	}
 	
 	public Cliente fromDTO(ClienteDTO objDTO) {
@@ -140,5 +140,18 @@ public class ClienteService {
 		
 		String fileName = prefix + user.getId() + ".jpg";
 		return s3Service.uploadFile(imageService.getInputStream(jpgImage, "jpg"), fileName, "image");
+	}
+	
+	public Cliente findByEmail(String email) {
+		UserSS user = UserService.authenticated();
+		if(user == null || !user.hasRole(Perfil.ADMIN) && !email.equals(user.getUsername())) {
+			throw new AuthorizationException("Acesso negado");
+		}
+		
+		Cliente obj = clienteRepository.findByEmail(email);
+		if(obj == null) {
+			throw new ObjectNotFoundException("Objeto não encontrado! Id: " + user.getId() + ", Tipo: " + Cliente.class.getName());
+		}
+		return obj;
 	}
 }
